@@ -84,9 +84,10 @@ const sessionLogs = new Map();
 function loadSessions() {
   const sessionFiles = fs.readdirSync(sessionsDirectory);
   sessionFiles.forEach(file => {
+    const sessionId = path.basename(file, '.json');
+    if (sessionId.length !== 36) return; // Skip non-session files
     try {
       const logData = fs.readFileSync(path.join(sessionsDirectory, file), 'utf8');
-      const sessionId = path.basename(file, '.json');
       sessionLogs.set(sessionId, logData);
       console.log(`Loaded log for session: ${sessionId}`);
     } catch (error) {
@@ -134,7 +135,10 @@ io.on('connection', (socket) => {
 
     ptyProcess.onExit(() => {
       sessions.delete(sessionId);
-      fs.unlinkSync(path.join(sessionsDirectory, `${sessionId}.json`));
+      const logFilePath = path.join(sessionsDirectory, `${sessionId}.json`);
+      if (fs.existsSync(logFilePath)) {
+        fs.unlinkSync(logFilePath);
+      }
       sessionLogs.delete(sessionId);
       socket.emit('session-closed', { sessionId });
     });
@@ -163,7 +167,10 @@ io.on('connection', (socket) => {
       session.ptyProcess.kill();
     }
     sessions.delete(sessionId);
-    fs.unlinkSync(path.join(sessionsDirectory, `${sessionId}.json`));
+    const logFilePath = path.join(sessionsDirectory, `${sessionId}.json`);
+    if (fs.existsSync(logFilePath)) {
+      fs.unlinkSync(logFilePath);
+    }
     sessionLogs.delete(sessionId);
     socket.emit('session-closed', { sessionId });
   });
