@@ -1,0 +1,19 @@
+{
+  "name": "terminal-web-app",
+  "version": "1.0.0",
+  "description": "Web-based terminal with multiple sessions",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "node-pty": "^0.10.1",
+    "uuid": "^9.0.0"
+  },
+  "keywords": ["terminal", "web", "mobile", "termux"],
+  "author": "Your Name",
+  "license": "MIT"
+}
