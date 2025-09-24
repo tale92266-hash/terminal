@@ -1,0 +1,434 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    background: #1a1a1a;
+    color: #ffffff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2d2d2d;
+    padding: 10px 15px;
+    border-bottom: 1px solid #404040;
+    min-height: 50px;
+}
+
+.header-left h1 {
+    font-size: 18px;
+    color: #00ff41;
+}
+
+.header-left i {
+    margin-right: 8px;
+}
+
+.header-right {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-icon {
+    background: #404040;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.btn-icon:hover {
+    background: #555555;
+}
+
+.btn-icon:active {
+    background: #666666;
+}
+
+/* Session Tabs */
+.session-tabs {
+    display: flex;
+    background: #2d2d2d;
+    padding: 0 10px;
+    border-bottom: 1px solid #404040;
+    overflow-x: auto;
+    min-height: 40px;
+    align-items: center;
+}
+
+.session-tab {
+    display: flex;
+    align-items: center;
+    background: #404040;
+    padding: 8px 12px;
+    margin-right: 5px;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 12px;
+    border: none;
+    color: #ccc;
+}
+
+.session-tab.active {
+    background: #00ff41;
+    color: #000;
+}
+
+.session-tab i {
+    margin-right: 5px;
+}
+
+.session-tab .close-btn {
+    margin-left: 8px;
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 3px;
+}
+
+.session-tab .close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Terminal Container */
+.terminal-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.terminal-wrapper {
+    flex: 1;
+    position: relative;
+    background: #000;
+}
+
+.terminal-instance {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+}
+
+.terminal-instance.active {
+    display: block;
+}
+
+.no-session {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: #1a1a1a;
+}
+
+.no-session-content {
+    text-align: center;
+    color: #888;
+}
+
+.no-session-content i {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #00ff41;
+}
+
+.no-session-content h2 {
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.no-session-content p {
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background: #00ff41;
+    color: #000;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #00cc33;
+    transform: translateY(-1px);
+}
+
+.btn-primary i {
+    margin-right: 8px;
+}
+
+/* Mobile Keyboard */
+.mobile-keyboard {
+    background: #2d2d2d;
+    padding: 10px;
+    border-top: 1px solid #404040;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.keyboard-row {
+    display: flex;
+    gap: 6px;
+    justify-content: space-between;
+}
+
+.key-btn {
+    flex: 1;
+    background: #404040;
+    border: none;
+    color: white;
+    padding: 10px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.1s;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.key-btn:active {
+    background: #00ff41;
+    color: #000;
+    transform: scale(0.95);
+}
+
+.key-btn.special {
+    background: #555555;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #2d2d2d;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #404040;
+    border-bottom: 1px solid #555;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+/* Settings */
+.setting-item {
+    margin-bottom: 20px;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.setting-item select,
+.setting-item input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #555;
+    background: #404040;
+    color: white;
+    border-radius: 4px;
+}
+
+/* Sessions List */
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background: #404040;
+}
+
+.session-info h4 {
+    margin: 0 0 5px 0;
+}
+
+.session-info small {
+    color: #888;
+}
+
+.session-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    background: #555;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-small:hover {
+    background: #666;
+}
+
+.btn-danger {
+    background: #ff4444;
+}
+
+.btn-danger:hover {
+    background: #cc3333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-left h1 {
+        font-size: 16px;
+    }
+    
+    .mobile-keyboard {
+        padding: 8px;
+    }
+    
+    .key-btn {
+        padding: 8px 4px;
+        font-size: 10px;
+        min-height: 35px;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+}
+
+/* Xterm.js customization */
+.xterm {
+    padding: 10px;
+    height: 100%;
+}
+
+.xterm-viewport {
+    overflow-y: auto;
+}
+
+.xterm-screen {
+    background: #000 !important;
+}
+
+/* Hide scrollbars on mobile */
+.session-tabs::-webkit-scrollbar {
+    height: 3px;
+}
+
+.session-tabs::-webkit-scrollbar-track {
+    background: #2d2d2d;
+}
+
+.session-tabs::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.terminal-instance {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Connection status */
+.connection-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.status-connected {
+    background: #00ff41;
+    color: #000;
+}
+
+.status-disconnected {
+    background: #ff4444;
+    color: #fff;
+}
+
+.status-connecting {
+    background: #ffaa00;
+    color: #000;
+}
