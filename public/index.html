@@ -2,153 +2,218 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Advanced Terminal - Termux Style</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal App - Mobile</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="theme-color" content="#1a1a1a">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
-    <!-- Status Bar -->
-    <div class="status-bar">
-        <div class="status-left">
-            <span class="time" id="currentTime">00:00</span>
-            <div class="connection-indicator" id="connectionIndicator">
-                <div class="status-dot"></div>
-                <span>ONLINE</span>
-            </div>
-        </div>
-        <div class="status-right">
-            <div class="battery-indicator">
-                <i class="fas fa-battery-full"></i>
-                <span id="batteryLevel">100%</span>
-            </div>
-            <div class="signal-indicator">
-                <i class="fas fa-wifi"></i>
-            </div>
-        </div>
-    </div>
-
     <!-- Header -->
     <div class="header">
         <div class="header-left">
-            <div class="app-icon">
-                <i class="fas fa-terminal"></i>
-            </div>
-            <div class="app-title">
-                <h1>Terminal</h1>
-                <span class="session-count" id="sessionCount">0 sessions</span>
-            </div>
+            <h1><i class="fas fa-terminal"></i> Terminal</h1>
         </div>
         <div class="header-right">
-            <button class="header-btn" id="newSessionBtn" title="New Session">
+            <button class="btn-icon" id="newSessionBtn">
                 <i class="fas fa-plus"></i>
             </button>
-            <button class="header-btn" id="sessionsBtn" title="Sessions">
-                <i class="fas fa-layers"></i>
+            <button class="btn-icon" id="sessionsBtn">
+                <i class="fas fa-list"></i>
             </button>
-            <button class="header-btn" id="menuBtn" title="Menu">
-                <i class="fas fa-bars"></i>
+            <button class="btn-icon" id="settingsBtn">
+                <i class="fas fa-cog"></i>
+            </button>
+            <button class="btn-icon" id="keyboardToggleBtn">
+                <i class="fas fa-keyboard"></i>
             </button>
         </div>
     </div>
 
     <!-- Session Tabs -->
-    <div class="session-tabs-container">
-        <div class="session-tabs" id="sessionTabs">
-            <!-- Tabs will be dynamically added here -->
-        </div>
+    <div class="session-tabs" id="sessionTabs">
+        <!-- Tabs will be dynamically added here -->
     </div>
 
     <!-- Terminal Container -->
-    <div class="terminal-container" id="terminalContainer">
+    <div class="terminal-container">
         <div class="terminal-wrapper" id="terminalWrapper">
-            <div class="no-session" id="noSession">
+            <div class="no-session">
                 <div class="no-session-content">
-                    <div class="terminal-logo">
-                        <i class="fas fa-terminal"></i>
-                    </div>
-                    <h2>Welcome to Advanced Terminal</h2>
-                    <p>Experience the power of command line</p>
+                    <i class="fas fa-terminal"></i>
+                    <h2>Welcome to Terminal App</h2>
+                    <p>Create a new session to get started</p>
                     <button class="btn-primary" onclick="createNewSession()">
-                        <i class="fas fa-plus-circle"></i>
-                        Create New Session
+                        <i class="fas fa-plus"></i> New Session
                     </button>
                 </div>
             </div>
         </div>
-        
-        <!-- Selection Popup -->
-        <div class="selection-popup" id="selectionPopup">
-            <button class="selection-btn" id="copyBtn">
-                <i class="fas fa-copy"></i>
-                Copy
-            </button>
-            <button class="selection-btn" id="pasteBtn">
-                <i class="fas fa-paste"></i>
-                Paste
-            </button>
-            <button class="selection-btn" id="selectAllBtn">
-                <i class="fas fa-select-all"></i>
-                Select All
-            </button>
+    </div>
+
+    <!-- Enhanced Mobile Keyboard -->
+    <div class="mobile-keyboard" id="mobileKeyboard">
+        <!-- Main Modifier Row -->
+        <div class="keyboard-row modifier-row">
+            <button class="key-btn modifier" data-key="Ctrl" data-long="CTRL">CTRL</button>
+            <button class="key-btn modifier" data-key="Alt" data-long="ALT">ALT</button>
+            <button class="key-btn modifier" data-key="Escape" data-long="ESC">ESC</button>
+            <button class="key-btn modifier" data-key="Tab" data-long="TAB">TAB</button>
+            <button class="key-btn modifier" data-key="FN" data-long="FN">FN</button>
+        </div>
+
+        <!-- Navigation Row -->
+        <div class="keyboard-row nav-row">
+            <button class="key-btn nav" data-key="Home" data-long="HOME">HOME</button>
+            <button class="key-btn nav" data-key="ArrowUp" data-long="↑">↑</button>
+            <button class="key-btn nav" data-key="End" data-long="END">END</button>
+            <button class="key-btn nav" data-key="PageUp" data-long="PgUp">PgUp</button>
+        </div>
+
+        <div class="keyboard-row nav-row">
+            <button class="key-btn nav" data-key="ArrowLeft" data-long="←">←</button>
+            <button class="key-btn nav" data-key="ArrowDown" data-long="↓">↓</button>
+            <button class="key-btn nav" data-key="ArrowRight" data-long="→">→</button>
+            <button class="key-btn nav" data-key="PageDown" data-long="PgDn">PgDn</button>
+        </div>
+
+        <!-- Control Commands Row -->
+        <div class="keyboard-row ctrl-row">
+            <button class="key-btn ctrl-cmd" data-key="Ctrl+C" data-long="^C">^C</button>
+            <button class="key-btn ctrl-cmd" data-key="Ctrl+Z" data-long="^Z">^Z</button>
+            <button class="key-btn ctrl-cmd" data-key="Ctrl+D" data-long="^D">^D</button>
+            <button class="key-btn ctrl-cmd" data-key="Ctrl+L" data-long="^L">^L</button>
+        </div>
+
+        <div class="keyboard-row ctrl-row">
+            <button class="key-btn ctrl-cmd" data-key="Ctrl+A" data-long="^A">^A</button>
+            <button class="key-btn ctrl-cmd" data-key="Ctrl+E" data-long="^E">^E</button>
+            <button class="key-btn ctrl-cmd" data-key="Ctrl+K" data-long="^K">^K</button>
+            <button class="key-btn ctrl-cmd" data-key="Ctrl+U" data-long="^U">^U</button>
+        </div>
+
+        <!-- Special Characters Row -->
+        <div class="keyboard-row special-row">
+            <button class="key-btn special" data-key="|" data-long="|">|</button>
+            <button class="key-btn special" data-key="&" data-long="&">&</button>
+            <button class="key-btn special" data-key=";" data-long=";">;</button>
+            <button class="key-btn special" data-key='"' data-long='"'>"</button>
+            <button class="key-btn special" data-key="'" data-long="'">'</button>
+            <button class="key-btn special" data-key="`" data-long="`">`</button>
+        </div>
+
+        <div class="keyboard-row special-row">
+            <button class="key-btn special" data-key="~" data-long="~">~</button>
+            <button class="key-btn special" data-key="^" data-long="^">^</button>
+            <button class="key-btn special" data-key="_" data-long="_">_</button>
+            <button class="key-btn special" data-key="-" data-long="-">-</button>
+            <button class="key-btn special" data-key="=" data-long="=">=</button>
+            <button class="key-btn special" data-key="+" data-long="+">+</button>
+        </div>
+
+        <!-- Action Row -->
+        <div class="keyboard-row action-row">
+            <button class="key-btn action" data-key="Delete" data-long="DEL">DEL</button>
+            <button class="key-btn action" data-key="Backspace" data-long="⌫">⌫</button>
+            <button class="key-btn action primary" data-key="Enter" data-long="⏎">⏎</button>
+            <button class="key-btn action" data-key="Copy" data-long="COPY">COPY</button>
+            <button class="key-btn action" data-key="Paste" data-long="PASTE">PASTE</button>
+        </div>
+
+        <!-- Quick Commands Row (toggleable with FN) -->
+        <div class="keyboard-row fn-row" id="fnRow" style="display: none;">
+            <button class="key-btn fn-cmd" data-key="Ctrl+R" data-long="^R">^R</button>
+            <button class="key-btn fn-cmd" data-key="clear" data-long="clear">clear</button>
+            <button class="key-btn fn-cmd" data-key="ls" data-long="ls">ls</button>
+            <button class="key-btn fn-cmd" data-key="cd" data-long="cd">cd</button>
+            <button class="key-btn fn-cmd" data-key="pwd" data-long="pwd">pwd</button>
         </div>
     </div>
 
-    <!-- Advanced Mobile Keyboard -->
-    <div class="keyboard-container" id="keyboardContainer">
-        <div class="keyboard-row function-row">
-            <button class="key-btn fn-key" data-key="Escape">ESC</button>
-            <button class="key-btn fn-key" data-key="F1">F1</button>
-            <button class="key-btn fn-key" data-key="F2">F2</button>
-            <button class="key-btn fn-key" data-key="F3">F3</button>
-            <button class="key-btn fn-key" data-key="F4">F4</button>
-            <button class="key-btn fn-key" data-key="Home">HOME</button>
-            <button class="key-btn fn-key" data-key="End">END</button>
+    <!-- Gesture Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <h3>Quick Actions</h3>
+                <button class="sidebar-close" onclick="closeSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-body">
+                <button class="sidebar-btn" onclick="createNewSession()">
+                    <i class="fas fa-plus"></i> New Session
+                </button>
+                <button class="sidebar-btn" onclick="showSessionsModal()">
+                    <i class="fas fa-list"></i> Sessions
+                </button>
+                <button class="sidebar-btn" onclick="showSettingsModal()">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+                <button class="sidebar-btn" onclick="clearCurrentTerminal()">
+                    <i class="fas fa-broom"></i> Clear Terminal
+                </button>
+            </div>
         </div>
-        <div class="keyboard-row control-row">
-            <button class="key-btn ctrl-key" data-key="Tab">TAB</button>
-            <button class="key-btn ctrl-key" data-key="Ctrl+C">CTRL+C</button>
-            <button class="key-btn ctrl-key" data-key="Ctrl+Z">CTRL+Z</button>
-            <button class="key-btn ctrl-key" data-key="Ctrl+D">CTRL+D</button>
-            <button class="key-btn ctrl-key" data-key="Ctrl+V">PASTE</button>
-            <button class="key-btn ctrl-key" data-key="Ctrl+L">CLEAR</button>
+    </div>
+
+    <!-- Sessions Modal -->
+    <div class="modal" id="sessionsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Active Sessions</h3>
+                <button class="modal-close" onclick="closeModal('sessionsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="sessions-list" id="sessionsList">
+                    <!-- Sessions will be loaded here -->
+                </div>
+            </div>
         </div>
-        <div class="keyboard-row nav-row">
-            <button class="key-btn nav-key" data-key="ArrowUp">
-                <i class="fas fa-arrow-up"></i>
-            </button>
-            <button class="key-btn nav-key" data-key="ArrowDown">
-                <i class="fas fa-arrow-down"></i>
-            </button>
-            <button class="key-btn nav-key" data-key="ArrowLeft">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <button class="key-btn nav-key" data-key="ArrowRight">
-                <i class="fas fa-arrow-right"></i>
-            </button>
-            <button class="key-btn nav-key enter-key" data-key="Enter">
-                <i class="fas fa-level-down-alt"></i>
-            </button>
-        </div>
-        <div class="keyboard-row special-row">
-            <button class="key-btn special-key" data-key="|">|</button>
-            <button class="key-btn special-key" data-key="&">&</button>
-            <button class="key-btn special-key" data-key=";">;</button>
-            <button class="key-btn special-key" data-key='"'>" </button>
-            <button class="key-btn special-key" data-key="'">'</button>
-            <button class="key-btn special-key" data-key="`">`</button>
-            <button class="key-btn special-key" data-key="~">~</button>
-            <button class="key-btn special-key" data-key="$">$</button>
-        </div>
-        <div class="keyboard-toggle">
-            <button class="toggle-btn" id="keyboardToggle">
-                <i class="fas fa-chevron-down"></i>
-            </button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" onclick="closeModal('settingsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label>Font Size</label>
+                    <select id="fontSize">
+                        <option value="12">12px</option>
+                        <option value="14" selected>14px</option>
+                        <option value="16">16px</option>
+                        <option value="18">18px</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Theme</label>
+                    <select id="theme">
+                        <option value="dark" selected>Dark</option>
+                        <option value="light">Light</option>
+                        <option value="green">Matrix Green</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Show Virtual Keyboard</label>
+                    <input type="checkbox" id="showKeyboard" checked>
+                </div>
+                <div class="setting-item">
+                    <label>Haptic Feedback</label>
+                    <input type="checkbox" id="hapticFeedback" checked>
+                </div>
+                <div class="setting-item">
+                    <label>Long Press Delay (ms)</label>
+                    <input type="range" id="longPressDelay" min="300" max="1000" value="500">
+                    <span id="longPressValue">500ms</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -156,7 +221,6 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.9.0/lib/xterm-addon-web-links.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
