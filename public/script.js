@@ -389,21 +389,18 @@ class TerminalApp {
     }
 
     updateConnectionStatus(status) {
-        // Remove existing status
-        const existingStatus = document.querySelector('.connection-status');
-        if (existingStatus) {
-            existingStatus.remove();
-        }
-        
-        const statusDiv = document.createElement('div');
-        statusDiv.className = `connection-status status-${status}`;
+        const statusDiv = document.getElementById('connectionStatus');
+        if (!statusDiv) return; // Exit if the element is not found
+
         statusDiv.textContent = status.toUpperCase();
+        statusDiv.className = `connection-status status-${status}`;
         
-        document.body.appendChild(statusDiv);
-        
-        // Remove after 3 seconds if connected
+        // If connected, hide the message after 3 seconds
         if (status === 'connected') {
-            setTimeout(() => statusDiv.remove(), 3000);
+            setTimeout(() => {
+                statusDiv.className = 'connection-status'; // Reset class to hide it
+                statusDiv.textContent = '';
+            }, 3000);
         }
     }
 
