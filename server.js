@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const http = require('http');
 const socketIo = require('socket.io');
 const pty = require('node-pty');
@@ -9,32 +10,77 @@ const os = require('os');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+  cors: { origin: "*", methods: ["GET", "POST"] }
+});
+
+// Session middleware
+app.use(session({
+  secret: 'secret-key-terminal-app',
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Body parser for login POST
+app.use(express.urlencoded({ extended: true }));
+
+// Hardcoded user credentials
+const USER = "samshaad365";
+const PASS = "shizuka123";
+
+// Authentication middleware
+function authMiddleware(req, res, next) {
+  if (req.session && req.session.authenticated) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+}
+
+// Login page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Login POST handler
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  if(username === USER && password === PASS) {
+    req.session.authenticated = true;
+    req.session.username = username;
+    res.redirect('/');
+  } else {
+    res.send(`<p style="color:red;text-align:center;margin-top:20px;">Invalid credentials.<br/><a href="/login">Try again</a></p>`);
   }
 });
 
-// Store terminal sessions
-const sessions = new Map();
+// Protect terminal app route with auth
+app.use(authMiddleware);
 
-// Serve static files from 'public' folder
+// Serve static files (terminal UI)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Root route serve
+// Root Route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Socket.IO connection handling
+const sessions = new Map();
+
+io.use((socket, next) => {
+  // Socket io authentication via cookie session
+  let cookie = socket.handshake.headers.cookie;
+  // Simplest check: allow all connections, better way is needed for production
+  next();
+});
+
+// Socket connection handling (same as before)
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
-  // Create new terminal session
   socket.on('create-session', () => {
     const sessionId = uuidv4();
     const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-    
+
     const ptyProcess = pty.spawn(shell, [], {
       name: 'xterm-color',
       cols: 80,
@@ -43,30 +89,25 @@ io.on('connection', (socket) => {
       env: process.env
     });
 
-    // Store session
     sessions.set(sessionId, {
       ptyProcess,
       socketId: socket.id,
       createdAt: new Date()
     });
 
-    // Send terminal output to client
     ptyProcess.onData((data) => {
       socket.emit('terminal-output', { sessionId, data });
     });
 
-    // Handle terminal exit
     ptyProcess.onExit(() => {
       sessions.delete(sessionId);
       socket.emit('session-closed', { sessionId });
     });
 
-    // Inform client about created session
     socket.emit('session-created', { sessionId });
-    console.log(`Created terminal session: ${sessionId}`);
+    console.log(`Created session: ${sessionId}`);
   });
 
-  // Handle terminal input from client
   socket.on('terminal-input', ({ sessionId, data }) => {
     const session = sessions.get(sessionId);
     if (session && session.socketId === socket.id) {
@@ -74,7 +115,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle terminal resize
   socket.on('resize-terminal', ({ sessionId, cols, rows }) => {
     const session = sessions.get(sessionId);
     if (session && session.socketId === socket.id) {
@@ -82,7 +122,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Close session explicitly
   socket.on('close-session', ({ sessionId }) => {
     const session = sessions.get(sessionId);
     if (session && session.socketId === socket.id) {
@@ -92,7 +131,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Send list of active sessions of this client
   socket.on('get-sessions', () => {
     const userSessions = Array.from(sessions.entries())
       .filter(([_, session]) => session.socketId === socket.id)
@@ -100,11 +138,10 @@ io.on('connection', (socket) => {
         sessionId,
         createdAt: session.createdAt
       }));
-    
+
     socket.emit('sessions-list', userSessions);
   });
 
-  // Cleanup on socket disconnect
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     for (const [sessionId, session] of sessions.entries()) {
