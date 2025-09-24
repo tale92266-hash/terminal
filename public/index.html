@@ -24,9 +24,6 @@
             <button class="btn-icon" id="settingsBtn">
                 <i class="fas fa-cog"></i>
             </button>
-            <button class="btn-icon" id="keyboardToggleBtn">
-                <i class="fas fa-keyboard"></i>
-            </button>
         </div>
     </div>
 
@@ -51,108 +48,29 @@
         </div>
     </div>
 
-    <!-- Enhanced Mobile Keyboard -->
-    <div class="mobile-keyboard" id="mobileKeyboard">
-        <!-- Main Modifier Row -->
-        <div class="keyboard-row modifier-row">
-            <button class="key-btn modifier" data-key="Ctrl" data-long="CTRL">CTRL</button>
-            <button class="key-btn modifier" data-key="Alt" data-long="ALT">ALT</button>
-            <button class="key-btn modifier" data-key="Escape" data-long="ESC">ESC</button>
-            <button class="key-btn modifier" data-key="Tab" data-long="TAB">TAB</button>
-            <button class="key-btn modifier" data-key="FN" data-long="FN">FN</button>
+    <!-- Mobile Keyboard -->
+    <div class="mobile-keyboard">
+        <div class="keyboard-row">
+            <button class="key-btn" data-key="Tab">Tab</button>
+            <button class="key-btn" data-key="Ctrl+C">^C</button>
+            <button class="key-btn" data-key="Ctrl+Z">^Z</button>
+            <button class="key-btn" data-key="Ctrl+D">^D</button>
+            <button class="key-btn" data-key="Escape">Esc</button>
         </div>
-
-        <!-- Navigation Row -->
-        <div class="keyboard-row nav-row">
-            <button class="key-btn nav" data-key="Home" data-long="HOME">HOME</button>
-            <button class="key-btn nav" data-key="ArrowUp" data-long="↑">↑</button>
-            <button class="key-btn nav" data-key="End" data-long="END">END</button>
-            <button class="key-btn nav" data-key="PageUp" data-long="PgUp">PgUp</button>
+        <div class="keyboard-row">
+            <button class="key-btn" data-key="ArrowUp">↑</button>
+            <button class="key-btn" data-key="ArrowDown">↓</button>
+            <button class="key-btn" data-key="ArrowLeft">←</button>
+            <button class="key-btn" data-key="ArrowRight">→</button>
+            <button class="key-btn" data-key="Enter">⏎</button>
         </div>
-
-        <div class="keyboard-row nav-row">
-            <button class="key-btn nav" data-key="ArrowLeft" data-long="←">←</button>
-            <button class="key-btn nav" data-key="ArrowDown" data-long="↓">↓</button>
-            <button class="key-btn nav" data-key="ArrowRight" data-long="→">→</button>
-            <button class="key-btn nav" data-key="PageDown" data-long="PgDn">PgDn</button>
-        </div>
-
-        <!-- Control Commands Row -->
-        <div class="keyboard-row ctrl-row">
-            <button class="key-btn ctrl-cmd" data-key="Ctrl+C" data-long="^C">^C</button>
-            <button class="key-btn ctrl-cmd" data-key="Ctrl+Z" data-long="^Z">^Z</button>
-            <button class="key-btn ctrl-cmd" data-key="Ctrl+D" data-long="^D">^D</button>
-            <button class="key-btn ctrl-cmd" data-key="Ctrl+L" data-long="^L">^L</button>
-        </div>
-
-        <div class="keyboard-row ctrl-row">
-            <button class="key-btn ctrl-cmd" data-key="Ctrl+A" data-long="^A">^A</button>
-            <button class="key-btn ctrl-cmd" data-key="Ctrl+E" data-long="^E">^E</button>
-            <button class="key-btn ctrl-cmd" data-key="Ctrl+K" data-long="^K">^K</button>
-            <button class="key-btn ctrl-cmd" data-key="Ctrl+U" data-long="^U">^U</button>
-        </div>
-
-        <!-- Special Characters Row -->
-        <div class="keyboard-row special-row">
-            <button class="key-btn special" data-key="|" data-long="|">|</button>
-            <button class="key-btn special" data-key="&" data-long="&">&</button>
-            <button class="key-btn special" data-key=";" data-long=";">;</button>
-            <button class="key-btn special" data-key='"' data-long='"'>"</button>
-            <button class="key-btn special" data-key="'" data-long="'">'</button>
-            <button class="key-btn special" data-key="`" data-long="`">`</button>
-        </div>
-
-        <div class="keyboard-row special-row">
-            <button class="key-btn special" data-key="~" data-long="~">~</button>
-            <button class="key-btn special" data-key="^" data-long="^">^</button>
-            <button class="key-btn special" data-key="_" data-long="_">_</button>
-            <button class="key-btn special" data-key="-" data-long="-">-</button>
-            <button class="key-btn special" data-key="=" data-long="=">=</button>
-            <button class="key-btn special" data-key="+" data-long="+">+</button>
-        </div>
-
-        <!-- Action Row -->
-        <div class="keyboard-row action-row">
-            <button class="key-btn action" data-key="Delete" data-long="DEL">DEL</button>
-            <button class="key-btn action" data-key="Backspace" data-long="⌫">⌫</button>
-            <button class="key-btn action primary" data-key="Enter" data-long="⏎">⏎</button>
-            <button class="key-btn action" data-key="Copy" data-long="COPY">COPY</button>
-            <button class="key-btn action" data-key="Paste" data-long="PASTE">PASTE</button>
-        </div>
-
-        <!-- Quick Commands Row (toggleable with FN) -->
-        <div class="keyboard-row fn-row" id="fnRow" style="display: none;">
-            <button class="key-btn fn-cmd" data-key="Ctrl+R" data-long="^R">^R</button>
-            <button class="key-btn fn-cmd" data-key="clear" data-long="clear">clear</button>
-            <button class="key-btn fn-cmd" data-key="ls" data-long="ls">ls</button>
-            <button class="key-btn fn-cmd" data-key="cd" data-long="cd">cd</button>
-            <button class="key-btn fn-cmd" data-key="pwd" data-long="pwd">pwd</button>
-        </div>
-    </div>
-
-    <!-- Gesture Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-content">
-            <div class="sidebar-header">
-                <h3>Quick Actions</h3>
-                <button class="sidebar-close" onclick="closeSidebar()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="sidebar-body">
-                <button class="sidebar-btn" onclick="createNewSession()">
-                    <i class="fas fa-plus"></i> New Session
-                </button>
-                <button class="sidebar-btn" onclick="showSessionsModal()">
-                    <i class="fas fa-list"></i> Sessions
-                </button>
-                <button class="sidebar-btn" onclick="showSettingsModal()">
-                    <i class="fas fa-cog"></i> Settings
-                </button>
-                <button class="sidebar-btn" onclick="clearCurrentTerminal()">
-                    <i class="fas fa-broom"></i> Clear Terminal
-                </button>
-            </div>
+        <div class="keyboard-row">
+            <button class="key-btn special" data-key="|">|</button>
+            <button class="key-btn special" data-key="&">&</button>
+            <button class="key-btn special" data-key=";">;</button>
+            <button class="key-btn special" data-key='"'>"</button>
+            <button class="key-btn special" data-key="'">'</button>
+            <button class="key-btn special" data-key="`">`</button>
         </div>
     </div>
 
@@ -203,15 +121,6 @@
                 <div class="setting-item">
                     <label>Show Virtual Keyboard</label>
                     <input type="checkbox" id="showKeyboard" checked>
-                </div>
-                <div class="setting-item">
-                    <label>Haptic Feedback</label>
-                    <input type="checkbox" id="hapticFeedback" checked>
-                </div>
-                <div class="setting-item">
-                    <label>Long Press Delay (ms)</label>
-                    <input type="range" id="longPressDelay" min="300" max="1000" value="500">
-                    <span id="longPressValue">500ms</span>
                 </div>
             </div>
         </div>
