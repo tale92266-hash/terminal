@@ -133,16 +133,8 @@ io.on('connection', (socket) => {
       fs.writeFileSync(path.join(sessionsDirectory, `${sessionId}.json`), sessionLogs.get(sessionId));
     });
 
-    ptyProcess.onExit(() => {
-      sessions.delete(sessionId);
-      const logFilePath = path.join(sessionsDirectory, `${sessionId}.json`);
-      if (fs.existsSync(logFilePath)) {
-        fs.unlinkSync(logFilePath);
-      }
-      sessionLogs.delete(sessionId);
-      socket.emit('session-closed', { sessionId });
-    });
-
+    // ptyProcess.onExit ko hata diya gaya hai, taaki manual close par hi file delete ho.
+    
     socket.emit('session-created', { sessionId });
     console.log(`Created session: ${sessionId}`);
   });
@@ -199,7 +191,6 @@ io.on('connection', (socket) => {
   socket.on('join-session', ({ sessionId }) => {
     let session = sessions.get(sessionId);
     
-    // If the session does not have an active ptyProcess, create one.
     if (!session) {
       const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
       const ptyProcess = pty.spawn(shell, [], {
@@ -217,28 +208,15 @@ io.on('connection', (socket) => {
       };
       sessions.set(sessionId, session);
       
-      // Re-attach data and exit event handlers
       ptyProcess.onData((data) => {
         socket.emit('terminal-output', { sessionId, data });
         sessionLogs.set(sessionId, sessionLogs.get(sessionId) + data);
         fs.writeFileSync(path.join(sessionsDirectory, `${sessionId}.json`), sessionLogs.get(sessionId));
       });
-    
-      ptyProcess.onExit(() => {
-        sessions.delete(sessionId);
-        const logFilePath = path.join(sessionsDirectory, `${sessionId}.json`);
-        if (fs.existsSync(logFilePath)) {
-          fs.unlinkSync(logFilePath);
-        }
-        sessionLogs.delete(sessionId);
-        socket.emit('session-closed', { sessionId });
-      });
     } else {
-        // If session exists, just update its socket ID to the new connection
         session.socketId = socket.id;
     }
 
-    // Send the log data to the frontend so it can restore the terminal state
     const log = sessionLogs.get(sessionId) || '';
     socket.emit('session-joined', { sessionId, log });
   });
@@ -247,9 +225,8 @@ io.on('connection', (socket) => {
     console.log('Client disconnected:', socket.id);
     for (const [sessionId, session] of sessions.entries()) {
       if (session.socketId === socket.id) {
-        // sessions will persist, don't kill the process
-        // session.ptyProcess.kill();
-        // sessions.delete(sessionId);
+        sessions.delete(sessionId);
+        // ptyProcess ko kill nahi kiya jayega, taaki session persist kare
       }
     }
   });
