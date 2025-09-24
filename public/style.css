@@ -264,6 +264,11 @@ body {
     max-width: none;
 }
 
+.key-btn.toggled {
+    background: #00ff41;
+    color: #000;
+}
+
 .key-btn:active {
     background: #00ff41;
     color: #000;
