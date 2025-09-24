@@ -46,6 +46,7 @@ body {
 .header-right {
     display: flex;
     gap: 8px;
+    align-items: center;
 }
 
 .btn-icon {
@@ -464,28 +465,31 @@ body {
 
 /* Connection status */
 .connection-status {
-    position: absolute;
-    top: 8px;
-    right: 8px;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 10px;
     font-weight: bold;
+    text-transform: uppercase;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0; /* Initially hidden */
 }
 
 .status-connected {
     background: #00ff41;
     color: #000;
+    opacity: 1;
 }
 
 .status-disconnected {
     background: #ff4444;
     color: #fff;
+    opacity: 1;
 }
 
 .status-connecting {
     background: #ffaa00;
     color: #000;
+    opacity: 1;
 }
 
 /* Mobile-specific improvements */
