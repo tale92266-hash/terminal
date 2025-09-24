@@ -1,132 +1,158 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* Advanced Termux Mobile Style */
 body {
     font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-    background: #1a1a1a;
-    color: #ffffff;
+    background: #181818;
+    color: #fff;
     height: 100vh;
+    margin: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-/* Header */
-.header {
+.status-bar {
+    width: 100%;
+    padding: 0 10px;
+    height: 28px;
+    background: #222;
+    color: #bbb;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #2d2d2d;
-    padding: 10px 15px;
-    border-bottom: 1px solid #404040;
-    min-height: 50px;
+    font-size: 12px;
 }
 
-.header-left h1 {
-    font-size: 18px;
-    color: #00ff41;
-}
-
-.header-left i {
-    margin-right: 8px;
-}
-
-.header-right {
+.status-left, .status-right {
     display: flex;
+    align-items: center;
     gap: 10px;
 }
 
-.btn-icon {
-    background: #404040;
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #00ff41;
+    border-radius: 50%;
+    margin-right: 3px;
+}
+
+.header {
+    background: #232d2d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1.5px solid #424242;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.app-icon i {
+    font-size: 21px;
+    color: #00ff41;
+}
+
+.app-title h1 {
+    font-size: 17px;
+    color: #00ff41;
+    font-weight: 700;
+}
+
+.session-count {
+    font-size: 11px;
+    color: #aaa;
+}
+
+.header-btn {
+    background: #343434;
     border: none;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
+    color: #fff;
+    padding: 8px 10px;
+    margin-left: 7px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s;
+    font-size: 15px;
+    transition: background 0.18s;
 }
 
-.btn-icon:hover {
-    background: #555555;
+.header-btn:active, .header-btn:focus {
+    background: #00ff41;
+    color: #181818;
 }
 
-.btn-icon:active {
-    background: #666666;
+.session-tabs-container {
+    background: #222;
+    padding: 4px 0;
+    border-bottom: 1px solid #343434;
 }
 
-/* Session Tabs */
 .session-tabs {
     display: flex;
-    background: #2d2d2d;
-    padding: 0 10px;
-    border-bottom: 1px solid #404040;
     overflow-x: auto;
-    min-height: 40px;
     align-items: center;
+    min-height: 36px;
+    gap: 6px;
 }
 
 .session-tab {
-    display: flex;
-    align-items: center;
-    background: #404040;
-    padding: 8px 12px;
-    margin-right: 5px;
+    background: #333;
+    color: #aaa;
     border-radius: 6px 6px 0 0;
+    padding: 8px 14px;
+    margin-right: 3px;
+    font-size: 12px;
     cursor: pointer;
     white-space: nowrap;
-    font-size: 12px;
     border: none;
-    color: #ccc;
+    display: flex;
+    align-items: center;
+    transition: background .2s;
 }
 
 .session-tab.active {
     background: #00ff41;
-    color: #000;
-}
-
-.session-tab i {
-    margin-right: 5px;
+    color: #181818;
 }
 
 .session-tab .close-btn {
-    margin-left: 8px;
     background: none;
     border: none;
+    margin-left: 8px;
     color: inherit;
     cursor: pointer;
-    padding: 2px;
-    border-radius: 3px;
+    padding: 1px;
+    border-radius: 2px;
 }
 
-.session-tab .close-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+.session-tab .close-btn:active {
+    background: #222;
 }
 
-/* Terminal Container */
 .terminal-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.terminal-wrapper {
     flex: 1;
     position: relative;
     background: #000;
+    min-height: 0px;
+}
+
+.terminal-wrapper {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    position: relative;
+    overflow: hidden;
 }
 
 .terminal-instance {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     display: none;
+    animation: fadeIn .3s ease-in;
 }
 
 .terminal-instance.active {
@@ -138,7 +164,7 @@ body {
     align-items: center;
     justify-content: center;
     height: 100%;
-    background: #1a1a1a;
+    background: #101010;
 }
 
 .no-session-content {
@@ -147,288 +173,156 @@ body {
 }
 
 .no-session-content i {
-    font-size: 48px;
-    margin-bottom: 20px;
+    font-size: 43px;
+    margin-bottom: 18px;
     color: #00ff41;
 }
 
 .no-session-content h2 {
-    margin-bottom: 10px;
+    font-size: 18px;
     color: #fff;
-}
-
-.no-session-content p {
-    margin-bottom: 20px;
+    margin-bottom: 9px;
 }
 
 .btn-primary {
     background: #00ff41;
-    color: #000;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
+    color: #111;
+    padding: 11px 22px;
+    border-radius: 5px;
     font-weight: bold;
-    transition: all 0.2s;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
 }
 
-.btn-primary:hover {
-    background: #00cc33;
-    transform: translateY(-1px);
+.btn-primary:active {
+    background: #00df41;
 }
 
-.btn-primary i {
-    margin-right: 8px;
+.selection-popup {
+    display: none;
+    position: absolute;
+    right: 15px;
+    top: 65px;
+    background: #232d2d;
+    border-radius: 8px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.17);
+    z-index: 110;
+    flex-direction: column;
+    gap: 3px;
+    padding: 9px;
 }
-
-/* Mobile Keyboard */
-.mobile-keyboard {
-    background: #2d2d2d;
-    padding: 10px;
-    border-top: 1px solid #404040;
+.selection-btn {
+    background: #242;
+    border: none;
+    color: #0f0;
+    padding: 8px 13px;
+    margin: 3px 0;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .16s;
+}
+.selection-btn:active {
+    background: #00ff41;
+    color: #242;
+}
+.keyboard-container {
+    background: #202020;
+    padding: 7px 7px 0px 7px;
+    border-top: 1.5px solid #424242;
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    width: 100vw;
+    z-index: 100;
     display: flex;
     flex-direction: column;
-    gap: 8px;
 }
-
 .keyboard-row {
     display: flex;
-    gap: 6px;
+    gap: 5px;
     justify-content: space-between;
+    margin-bottom: 3px;
 }
-
 .key-btn {
-    flex: 1;
-    background: #404040;
+    background: #424242;
     border: none;
-    color: white;
-    padding: 10px 8px;
+    color: #fff;
+    padding: 8px 6px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-    transition: all 0.1s;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 13px;
+    min-height: 36px;
+    flex: 1;
+    margin: 0 1.5px;
+    font-weight: 600;
 }
-
 .key-btn:active {
     background: #00ff41;
     color: #000;
-    transform: scale(0.95);
+    transform: scale(0.97);
 }
-
-.key-btn.special {
-    background: #555555;
+.key-btn.special-key, .key-btn.fn-key {
+    background: #343434;
+    color: #11dd55;
 }
-
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
+.key-btn.ctrl-key {
+    background: #232d2d;
+    color: #00ff41;
 }
-
-.modal.show {
+.key-btn.nav-key {
+    background: #282828;
+    color: #aaf;
+}
+.keyboard-toggle {
     display: flex;
-    align-items: center;
     justify-content: center;
+    margin-top: 1.5px;
 }
-
-.modal-content {
-    background: #2d2d2d;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 400px;
-    max-height: 80vh;
-    overflow: hidden;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background: #404040;
-    border-bottom: 1px solid #555;
-}
-
-.modal-header h3 {
-    margin: 0;
-}
-
-.modal-close {
-    background: none;
+.toggle-btn {
+    background: #343434;
+    color: #00ff41;
+    border-radius: 100px;
     border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 5px;
+    padding: 4px 18px;
+    font-size: 15px;
 }
 
-.modal-body {
-    padding: 20px;
-    overflow-y: auto;
-    max-height: 60vh;
-}
-
-/* Settings */
-.setting-item {
-    margin-bottom: 20px;
-}
-
-.setting-item label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-.setting-item select,
-.setting-item input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #555;
-    background: #404040;
-    color: white;
-    border-radius: 4px;
-}
-
-/* Sessions List */
-.session-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border: 1px solid #555;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    background: #404040;
-}
-
-.session-info h4 {
-    margin: 0 0 5px 0;
-}
-
-.session-info small {
-    color: #888;
-}
-
-.session-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.btn-small {
-    background: #555;
-    border: none;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.btn-small:hover {
-    background: #666;
-}
-
-.btn-danger {
-    background: #ff4444;
-}
-
-.btn-danger:hover {
-    background: #cc3333;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
     .header-left h1 {
-        font-size: 16px;
+        font-size: 15px;
     }
-    
-    .mobile-keyboard {
-        padding: 8px;
-    }
-    
     .key-btn {
-        padding: 8px 4px;
-        font-size: 10px;
-        min-height: 35px;
+        padding: 6px 2px;
+        font-size: 11px;
+        min-height: 30px;
     }
-    
-    .modal-content {
-        width: 95%;
+    .modal-content, .slide-menu {
+        width: 97vw;
     }
 }
-
-/* Xterm.js customization */
 .xterm {
     padding: 10px;
     height: 100%;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
-
 .xterm-viewport {
-    overflow-y: auto;
+    overflow-y: auto !important;
 }
-
 .xterm-screen {
     background: #000 !important;
+    user-select: text !important;
 }
-
-/* Hide scrollbars on mobile */
-.session-tabs::-webkit-scrollbar {
-    height: 3px;
+::-webkit-scrollbar {
+    height: 4px;
+    background: #222;
 }
-
-.session-tabs::-webkit-scrollbar-track {
-    background: #2d2d2d;
-}
-
-.session-tabs::-webkit-scrollbar-thumb {
-    background: #555;
+::-webkit-scrollbar-thumb {
+    background: #00ff41;
     border-radius: 3px;
 }
-
-/* Animation */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
-}
-
-.terminal-instance {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-/* Connection status */
-.connection-status {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: bold;
-}
-
-.status-connected {
-    background: #00ff41;
-    color: #000;
-}
-
-.status-disconnected {
-    background: #ff4444;
-    color: #fff;
-}
-
-.status-connecting {
-    background: #ffaa00;
-    color: #000;
 }
