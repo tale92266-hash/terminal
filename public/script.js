@@ -270,113 +270,76 @@ class TerminalApp {
         const session = this.sessions.get(this.activeSessionId);
         if (!session) return;
         
-        const terminal = session.terminal;
-        
-        // Handle Ctrl and Alt toggles
+        let inputData = '';
+
+        // Handle modifier buttons first
         if (key === 'Ctrl') {
             this.isCtrlToggled = !this.isCtrlToggled;
-            document.getElementById('ctrlBtn').classList.toggle('toggled', this.isCtrlToggled);
+            e.currentTarget.classList.toggle('toggled', this.isCtrlToggled);
             if (this.isAltToggled) {
                 this.isAltToggled = false;
-                document.getElementById('altBtn').classList.remove('toggled');
+                document.querySelector('[data-key="Alt"]').classList.remove('toggled');
             }
             return;
         }
 
         if (key === 'Alt') {
             this.isAltToggled = !this.isAltToggled;
-            document.getElementById('altBtn').classList.toggle('toggled', this.isAltToggled);
+            e.currentTarget.classList.toggle('toggled', this.isAltToggled);
             if (this.isCtrlToggled) {
                 this.isCtrlToggled = false;
-                document.getElementById('ctrlBtn').classList.remove('toggled');
+                document.querySelector('[data-key="Ctrl"]').classList.remove('toggled');
             }
             return;
         }
-        
-        // Handle Paste button
-        if (key === 'Paste') {
-            navigator.clipboard.readText().then(text => {
-                this.socket.emit('terminal-input', {
-                    sessionId: this.activeSessionId,
-                    data: text
-                });
-            }).catch(err => {
-                console.error('Failed to read clipboard:', err);
-                alert('Clipboard access denied. Please manually paste or grant permission.');
-            });
-            return;
-        }
 
-        let inputData = '';
-        
-        // Handle keypress based on toggled state
-        if (this.isCtrlToggled) {
-            const charCode = key.charCodeAt(0);
-            if (key.length === 1 && charCode >= 97 && charCode <= 122) { // a-z
-                inputData = String.fromCharCode(charCode - 96);
-            } else if (key.length === 1 && charCode >= 65 && charCode <= 90) { // A-Z
-                inputData = String.fromCharCode(charCode - 64);
-            } else if (key === 'x') {
-                inputData = '\x18'; // Ctrl+X
-            } else if (key === 's') {
-                inputData = '\x13'; // Ctrl+S
-            } else if (key === 'c') {
-                inputData = '\x03'; // Ctrl+C
-            } else if (key === 'v') {
-                inputData = '\x16'; // Ctrl+V
-            } else {
-                 // Fallback for other Ctrl+ combinations
-                 const specialKeys = {
-                     'Tab': '\t',
-                     'Escape': '\x1b',
-                     'ArrowUp': '\x1b[A',
-                     'ArrowDown': '\x1b[B',
-                     'ArrowLeft': '\x1b[D',
-                     'ArrowRight': '\x1b[C',
-                     'Home': '\x1b[H'
-                 };
-                 inputData = specialKeys[key] || '';
-            }
-            
-            this.isCtrlToggled = false;
-            document.getElementById('ctrlBtn').classList.remove('toggled');
+        // Handle specific shortcut buttons
+        const shortcuts = {
+            'Ctrl+X': '\x18',
+            'Ctrl+C': '\x03',
+            'Ctrl+S': '\x13',
+            'Ctrl+Z': '\x1a',
+            'Ctrl+D': '\x04',
+            'Tab': '\t',
+            'Enter': '\r',
+            'Escape': '\x1b',
+            'ArrowUp': '\x1b[A',
+            'ArrowDown': '\x1b[B',
+            'ArrowRight': '\x1b[C',
+            'ArrowLeft': '\x1b[D',
+            'Home': '\x1b[H'
+        };
 
-        } else if (this.isAltToggled) {
-            // Send Alt+key sequence
-            inputData = '\x1b' + key;
-            this.isAltToggled = false;
-            document.getElementById('altBtn').classList.remove('toggled');
-
+        if (shortcuts[key]) {
+            inputData = shortcuts[key];
         } else {
-            // Handle normal keys
-            switch (key) {
-                case 'Tab':
-                    inputData = '\t';
-                    break;
-                case 'Enter':
-                    inputData = '\r';
-                    break;
-                case 'Escape':
-                    inputData = '\x1b';
-                    break;
-                case 'ArrowUp':
-                    inputData = '\x1b[A';
-                    break;
-                case 'ArrowDown':
-                    inputData = '\x1b[B';
-                    break;
-                case 'ArrowRight':
-                    inputData = '\x1b[C';
-                    break;
-                case 'ArrowLeft':
-                    inputData = '\x1b[D';
-                    break;
-                case 'Home':
-                    inputData = '\x1b[H';
-                    break;
-                default:
+            // Handle character keys with modifiers
+            if (this.isCtrlToggled) {
+                const charCode = key.charCodeAt(0);
+                if (charCode >= 97 && charCode <= 122) { // a-z
+                    inputData = String.fromCharCode(charCode - 96);
+                } else if (charCode >= 65 && charCode <= 90) { // A-Z
+                    inputData = String.fromCharCode(charCode - 64);
+                } else {
                     inputData = key;
-                    break;
+                }
+            } else if (this.isAltToggled) {
+                inputData = '\x1b' + key;
+            } else if (key === 'Paste') {
+                 // Handle Paste button functionality
+                navigator.clipboard.readText().then(text => {
+                    this.socket.emit('terminal-input', {
+                        sessionId: this.activeSessionId,
+                        data: text
+                    });
+                }).catch(err => {
+                    console.error('Failed to read clipboard:', err);
+                    alert('Clipboard access denied. Please manually paste or grant permission.');
+                });
+                return;
+            } else {
+                 // For all other regular characters
+                 inputData = key;
             }
         }
         
@@ -385,6 +348,16 @@ class TerminalApp {
                 sessionId: this.activeSessionId, 
                 data: inputData 
             });
+        }
+
+        // Reset toggles after a keypress
+        if (this.isCtrlToggled) {
+            this.isCtrlToggled = false;
+            document.querySelector('[data-key="Ctrl"]').classList.remove('toggled');
+        }
+        if (this.isAltToggled) {
+            this.isAltToggled = false;
+            document.querySelector('[data-key="Alt"]').classList.remove('toggled');
         }
     }
 
