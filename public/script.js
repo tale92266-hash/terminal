@@ -5,6 +5,9 @@ class TerminalApp {
         this.activeSessionId = null;
         this.fitAddons = new Map();
         
+        this.isCtrlToggled = false;
+        this.isAltToggled = false;
+
         this.init();
     }
 
@@ -73,8 +76,8 @@ class TerminalApp {
 
         // Mobile keyboard
         document.querySelectorAll('.key-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.handleVirtualKey(btn.dataset.key);
+            btn.addEventListener('click', (e) => {
+                this.handleVirtualKey(e, btn.dataset.key);
             });
         });
 
@@ -261,7 +264,7 @@ class TerminalApp {
         }
     }
 
-    handleVirtualKey(key) {
+    handleVirtualKey(e, key) {
         if (!this.activeSessionId) return;
         
         const session = this.sessions.get(this.activeSessionId);
@@ -269,72 +272,99 @@ class TerminalApp {
         
         const terminal = session.terminal;
         
-        switch (key) {
-            case 'Tab':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\t' 
+        // Handle toggles for Ctrl and Alt
+        if (key === 'Ctrl') {
+            this.isCtrlToggled = !this.isCtrlToggled;
+            document.getElementById('ctrlBtn').classList.toggle('toggled', this.isCtrlToggled);
+            return;
+        }
+
+        if (key === 'Alt') {
+            this.isAltToggled = !this.isAltToggled;
+            document.getElementById('altBtn').classList.toggle('toggled', this.isAltToggled);
+            return;
+        }
+
+        // Handle Paste button
+        if (key === 'Paste') {
+            navigator.clipboard.readText().then(text => {
+                this.socket.emit('terminal-input', {
+                    sessionId: this.activeSessionId,
+                    data: text
                 });
-                break;
-            case 'Enter':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\r' 
-                });
-                break;
-            case 'Escape':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\x1b' 
-                });
-                break;
-            case 'Ctrl+C':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\x03' 
-                });
-                break;
-            case 'Ctrl+Z':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\x1a' 
-                });
-                break;
-            case 'Ctrl+D':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\x04' 
-                });
-                break;
-            case 'ArrowUp':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\x1b[A' 
-                });
-                break;
-            case 'ArrowDown':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\x1b[B' 
-                });
-                break;
-            case 'ArrowRight':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\x1b[C' 
-                });
-                break;
-            case 'ArrowLeft':
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: '\x1b[D' 
-                });
-                break;
-            default:
-                this.socket.emit('terminal-input', { 
-                    sessionId: this.activeSessionId, 
-                    data: key 
-                });
+            }).catch(err => {
+                console.error('Failed to read clipboard:', err);
+                alert('Clipboard access denied. Please manually paste or grant permission.');
+            });
+            return;
+        }
+
+        let inputData = '';
+        
+        // Combine Toggled keys with normal keys
+        if (this.isCtrlToggled) {
+            switch(key) {
+                case 'C': inputData = '\x03'; break; // Ctrl+C
+                case 'Z': inputData = '\x1a'; break; // Ctrl+Z
+                case 'D': inputData = '\x04'; break; // Ctrl+D
+                case 'H': inputData = '\x08'; break; // Ctrl+H (Backspace)
+                // Add more Ctrl combinations as needed
+            }
+            this.isCtrlToggled = false;
+            document.getElementById('ctrlBtn').classList.remove('toggled');
+        } else if (this.isAltToggled) {
+            // Alt combinations are more complex, for now we send Alt + char
+            // For example, Alt+B for backward-word
+            inputData = '\x1b' + key; // Escape + character
+            this.isAltToggled = false;
+            document.getElementById('altBtn').classList.remove('toggled');
+        } else {
+            // Normal keys
+            switch (key) {
+                case 'Tab':
+                    inputData = '\t';
+                    break;
+                case 'Enter':
+                    inputData = '\r';
+                    break;
+                case 'Escape':
+                    inputData = '\x1b';
+                    break;
+                case 'Ctrl+C':
+                    inputData = '\x03';
+                    break;
+                case 'Ctrl+Z':
+                    inputData = '\x1a';
+                    break;
+                case 'Ctrl+D':
+                    inputData = '\x04';
+                    break;
+                case 'ArrowUp':
+                    inputData = '\x1b[A';
+                    break;
+                case 'ArrowDown':
+                    inputData = '\x1b[B';
+                    break;
+                case 'ArrowRight':
+                    inputData = '\x1b[C';
+                    break;
+                case 'ArrowLeft':
+                    inputData = '\x1b[D';
+                    break;
+                case 'Home':
+                    inputData = '\x1b[H'; // ANSI escape code for Home
+                    break;
+                default:
+                    inputData = key;
+                    break;
+            }
+        }
+        
+        if (inputData) {
+            this.socket.emit('terminal-input', { 
+                sessionId: this.activeSessionId, 
+                data: inputData 
+            });
         }
     }
 
@@ -390,15 +420,14 @@ class TerminalApp {
 
     updateConnectionStatus(status) {
         const statusDiv = document.getElementById('connectionStatus');
-        if (!statusDiv) return; // Exit if the element is not found
+        if (!statusDiv) return;
 
         statusDiv.textContent = status.toUpperCase();
         statusDiv.className = `connection-status status-${status}`;
         
-        // If connected, hide the message after 3 seconds
         if (status === 'connected') {
             setTimeout(() => {
-                statusDiv.className = 'connection-status'; // Reset class to hide it
+                statusDiv.className = 'connection-status';
                 statusDiv.textContent = '';
             }, 3000);
         }
@@ -419,7 +448,6 @@ class TerminalApp {
             session.terminal.options.theme = theme;
         });
         
-        // Update body class for overall theme
         document.body.className = `theme-${themeName}`;
     }
 
@@ -455,7 +483,6 @@ class TerminalApp {
     }
 
     loadSettings() {
-        // Load saved settings
         const fontSize = localStorage.getItem('fontSize') || '14';
         const theme = localStorage.getItem('theme') || 'dark';
         const showKeyboard = localStorage.getItem('showKeyboard') !== 'false';
@@ -483,7 +510,6 @@ const app = new TerminalApp();
 
 // Handle back button on Android
 window.addEventListener('popstate', (e) => {
-    // Close any open modals
     document.querySelectorAll('.modal.show').forEach(modal => {
         modal.classList.remove('show');
     });
