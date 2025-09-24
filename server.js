@@ -1,11 +1,13 @@
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const http = require('http');
 const socketIo = require('socket.io');
 const pty = require('node-pty');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const os = require('os');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,11 +15,22 @@ const io = socketIo(server, {
   cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
+const sessionsDirectory = path.join(__dirname, 'sessions');
+if (!fs.existsSync(sessionsDirectory)) {
+  fs.mkdirSync(sessionsDirectory);
+}
+
 // Session middleware
 app.use(session({
+  store: new FileStore({
+    path: sessionsDirectory
+  }),
   secret: 'secret-key-terminal-app',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  }
 }));
 
 // Body parser for login POST
@@ -65,6 +78,23 @@ app.get('/', (req, res) => {
 });
 
 const sessions = new Map();
+const sessionLogs = new Map();
+
+// Load sessions from disk on server start
+function loadSessions() {
+  const sessionFiles = fs.readdirSync(sessionsDirectory);
+  sessionFiles.forEach(file => {
+    try {
+      const logData = fs.readFileSync(path.join(sessionsDirectory, file), 'utf8');
+      const sessionId = path.basename(file, '.json');
+      sessionLogs.set(sessionId, logData);
+      console.log(`Loaded log for session: ${sessionId}`);
+    } catch (error) {
+      console.error(`Failed to load session log for file: ${file}`, error);
+    }
+  });
+}
+loadSessions();
 
 io.use((socket, next) => {
   // Socket io authentication via cookie session
@@ -73,7 +103,7 @@ io.use((socket, next) => {
   next();
 });
 
-// Socket connection handling (same as before)
+// Socket connection handling
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
@@ -94,13 +124,18 @@ io.on('connection', (socket) => {
       socketId: socket.id,
       createdAt: new Date()
     });
+    sessionLogs.set(sessionId, sessionLogs.get(sessionId) || '');
 
     ptyProcess.onData((data) => {
       socket.emit('terminal-output', { sessionId, data });
+      sessionLogs.set(sessionId, sessionLogs.get(sessionId) + data);
+      fs.writeFileSync(path.join(sessionsDirectory, `${sessionId}.json`), sessionLogs.get(sessionId));
     });
 
     ptyProcess.onExit(() => {
       sessions.delete(sessionId);
+      fs.unlinkSync(path.join(sessionsDirectory, `${sessionId}.json`));
+      sessionLogs.delete(sessionId);
       socket.emit('session-closed', { sessionId });
     });
 
@@ -124,11 +159,13 @@ io.on('connection', (socket) => {
 
   socket.on('close-session', ({ sessionId }) => {
     const session = sessions.get(sessionId);
-    if (session && session.socketId === socket.id) {
+    if (session) {
       session.ptyProcess.kill();
-      sessions.delete(sessionId);
-      socket.emit('session-closed', { sessionId });
     }
+    sessions.delete(sessionId);
+    fs.unlinkSync(path.join(sessionsDirectory, `${sessionId}.json`));
+    sessionLogs.delete(sessionId);
+    socket.emit('session-closed', { sessionId });
   });
 
   socket.on('get-sessions', () => {
@@ -139,15 +176,31 @@ io.on('connection', (socket) => {
         createdAt: session.createdAt
       }));
 
-    socket.emit('sessions-list', userSessions);
+    // Add logs to the sessions list
+    const sessionsWithLogs = Array.from(sessionLogs.keys()).map(sessionId => {
+      const activeSession = sessions.get(sessionId);
+      return {
+        sessionId,
+        createdAt: activeSession ? activeSession.createdAt : new Date(),
+        active: !!activeSession
+      };
+    });
+
+    socket.emit('sessions-list', sessionsWithLogs);
+  });
+  
+  socket.on('join-session', ({ sessionId }) => {
+    const log = sessionLogs.get(sessionId) || '';
+    socket.emit('session-joined', { sessionId, log });
   });
 
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     for (const [sessionId, session] of sessions.entries()) {
       if (session.socketId === socket.id) {
-        session.ptyProcess.kill();
-        sessions.delete(sessionId);
+        // sessions will persist, don't kill the process
+        // session.ptyProcess.kill();
+        // sessions.delete(sessionId);
       }
     }
   });
