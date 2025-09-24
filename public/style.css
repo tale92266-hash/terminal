@@ -9,16 +9,18 @@ body {
     background: #1a1a1a;
     color: #ffffff;
     height: 100vh;
-    height: 100dvh; /* For dynamic viewport height on mobile */
+    height: 100dvh; /* Dynamic viewport height for mobile */
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    user-select: none;
     -webkit-user-select: none;
+    user-select: none;
+    /* Prevent zoom on iOS */
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
 }
 
+/* Header */
 .header {
     display: flex;
     justify-content: space-between;
@@ -26,7 +28,7 @@ body {
     background: #2d2d2d;
     padding: 8px 12px;
     border-bottom: 1px solid #404040;
-    min-height: 44px;
+    min-height: 44px; /* iOS minimum touch target */
     flex-shrink: 0;
 }
 
@@ -54,12 +56,13 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
-    min-width: 44px;
+    transition: background 0.2s;
+    min-width: 44px; /* iOS minimum touch target */
     min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .btn-icon:hover {
@@ -71,6 +74,7 @@ body {
     transform: scale(0.95);
 }
 
+/* Session Tabs */
 .session-tabs {
     display: flex;
     background: #2d2d2d;
@@ -80,7 +84,7 @@ body {
     min-height: 44px;
     align-items: center;
     flex-shrink: 0;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .session-tab {
@@ -96,6 +100,7 @@ body {
     border: none;
     color: #ccc;
     min-height: 36px;
+    -webkit-tap-highlight-color: transparent;
     transition: all 0.2s;
 }
 
@@ -132,12 +137,13 @@ body {
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* Terminal Container */
 .terminal-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    min-height: 0;
+    min-height: 0; /* Allow flex shrinking */
 }
 
 .terminal-wrapper {
@@ -154,7 +160,6 @@ body {
     right: 0;
     bottom: 0;
     display: none;
-    animation: fadeIn 0.3s ease-in-out;
 }
 
 .terminal-instance.active {
@@ -220,20 +225,22 @@ body {
     margin-right: 8px;
 }
 
+/* Mobile Keyboard */
 .mobile-keyboard {
     background: #2d2d2d;
     padding: 8px;
     border-top: 1px solid #404040;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
+    /* iOS Safari bottom safe area */
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
 }
 
 .keyboard-row {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     justify-content: space-between;
 }
 
@@ -242,17 +249,18 @@ body {
     background: #404040;
     border: none;
     color: white;
-    padding: 10px 6px;
+    padding: 8px 4px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     transition: all 0.1s;
-    min-height: 40px;
+    min-height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     -webkit-tap-highlight-color: transparent;
+    max-width: none;
 }
 
 .key-btn:active {
@@ -263,15 +271,10 @@ body {
 
 .key-btn.special {
     background: #555555;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
 }
 
-.key-btn.special:active {
-    background: #00ff41;
-    color: #000;
-}
-
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -340,6 +343,7 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
+/* Settings */
 .setting-item {
     margin-bottom: 20px;
 }
@@ -359,11 +363,11 @@ body {
     background: #404040;
     color: white;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
     min-height: 44px;
 }
 
-/* Sessions List styles */
+/* Sessions List */
 .session-item {
     display: flex;
     justify-content: space-between;
@@ -418,6 +422,7 @@ body {
     background: #cc3333;
 }
 
+/* Xterm.js customization */
 .xterm {
     padding: 8px;
     height: 100%;
@@ -433,6 +438,7 @@ body {
     background: #000 !important;
 }
 
+/* Hide scrollbars on mobile but keep functionality */
 .session-tabs::-webkit-scrollbar {
     height: 2px;
 }
@@ -446,11 +452,17 @@ body {
     border-radius: 2px;
 }
 
+/* Animation */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
+.terminal-instance {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Connection status */
 .connection-status {
     position: absolute;
     top: 8px;
@@ -476,8 +488,7 @@ body {
     color: #000;
 }
 
-/* Responsive */
-
+/* Mobile-specific improvements */
 @media (max-width: 768px) {
     .header {
         padding: 6px 8px;
@@ -512,22 +523,13 @@ body {
     
     .mobile-keyboard {
         padding: 6px;
-        gap: 6px;
         padding-bottom: calc(6px + env(safe-area-inset-bottom));
     }
     
-    .keyboard-row {
-        gap: 4px;
-    }
-    
     .key-btn {
-        min-height: 36px;
-        font-size: 11px;
-        padding: 8px 4px;
-    }
-    
-    .key-btn.special {
+        min-height: 32px;
         font-size: 10px;
+        padding: 6px 3px;
     }
     
     .modal-content {
@@ -557,6 +559,7 @@ body {
     }
 }
 
+/* Landscape orientation on mobile */
 @media (max-width: 768px) and (orientation: landscape) {
     .header {
         min-height: 36px;
@@ -579,6 +582,7 @@ body {
     }
 }
 
+/* Very small screens */
 @media (max-width: 480px) {
     .header-right {
         gap: 6px;
@@ -599,21 +603,34 @@ body {
     .key-btn {
         font-size: 9px;
         min-height: 30px;
-        padding: 6px 3px;
-    }
-    
-    .key-btn.special {
-        font-size: 9px;
     }
 }
 
-/* iOS Safari Fix */
+/* iOS Safari specific fixes */
 @supports (-webkit-touch-callout: none) {
     body {
+        height: 100vh;
         height: -webkit-fill-available;
     }
     
     .mobile-keyboard {
+        padding-bottom: calc(8px + constant(safe-area-inset-bottom));
         padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    }
+}
+
+/* Dark theme adjustments for better mobile readability */
+@media (prefers-color-scheme: dark) {
+    .xterm {
+        filter: brightness(1.1);
+    }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }

@@ -1,67 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>Terminal App</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
-    <script src="https://unpkg.com/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal App - Mobile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
         <div class="header-left">
-            <h1><i class="fas fa-terminal"></i>Terminal</h1>
+            <h1><i class="fas fa-terminal"></i> Terminal</h1>
         </div>
         <div class="header-right">
-            <button class="btn-icon" id="newSessionBtn" title="New Session">
+            <button class="btn-icon" id="newSessionBtn">
                 <i class="fas fa-plus"></i>
             </button>
-            <button class="btn-icon" id="sessionsBtn" title="Sessions">
+            <button class="btn-icon" id="sessionsBtn">
                 <i class="fas fa-list"></i>
             </button>
-            <button class="btn-icon" id="settingsBtn" title="Settings">
+            <button class="btn-icon" id="settingsBtn">
                 <i class="fas fa-cog"></i>
             </button>
         </div>
     </div>
 
-    <div class="session-tabs" id="sessionTabs"></div>
+    <!-- Session Tabs -->
+    <div class="session-tabs" id="sessionTabs">
+        <!-- Tabs will be dynamically added here -->
+    </div>
 
+    <!-- Terminal Container -->
     <div class="terminal-container">
         <div class="terminal-wrapper" id="terminalWrapper">
-            <div class="no-session" id="noSession">
+            <div class="no-session">
                 <div class="no-session-content">
                     <i class="fas fa-terminal"></i>
-                    <h2>No Terminal Session</h2>
-                    <p>Create a new session to start using the terminal</p>
-                    <button class="btn-primary" id="createFirstSession">
-                        <i class="fas fa-plus"></i>Start New Session
+                    <h2>Welcome to Terminal App</h2>
+                    <p>Create a new session to get started</p>
+                    <button class="btn-primary" onclick="createNewSession()">
+                        <i class="fas fa-plus"></i> New Session
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Mobile Essential Keyboard -->
-    <div class="mobile-keyboard" id="mobileKeyboard">
+    <!-- Mobile Keyboard -->
+    <div class="mobile-keyboard">
         <div class="keyboard-row">
-            <button class="key-btn special" data-key="ctrl">Ctrl</button>
-            <button class="key-btn special" data-key="alt">Alt</button>
-            <button class="key-btn special" data-key="tab">Tab</button>
-            <button class="key-btn special" data-key="esc">Esc</button>
-            <button class="key-btn special" data-key="home">Home</button>
-            <button class="key-btn special" data-key="paste">Paste</button>
+            <button class="key-btn" data-key="Tab">Tab</button>
+            <button class="key-btn" data-key="Ctrl+C">^C</button>
+            <button class="key-btn" data-key="Ctrl+Z">^Z</button>
+            <button class="key-btn" data-key="Ctrl+D">^D</button>
+            <button class="key-btn" data-key="Escape">Esc</button>
         </div>
         <div class="keyboard-row">
-            <button class="key-btn special" data-key="up">↑</button>
-            <button class="key-btn special" data-key="down">↓</button>
-            <button class="key-btn special" data-key="left">←</button>
-            <button class="key-btn special" data-key="right">→</button>
-            <button class="key-btn special" data-key="enter">Enter</button>
+            <button class="key-btn" data-key="ArrowUp">↑</button>
+            <button class="key-btn" data-key="ArrowDown">↓</button>
+            <button class="key-btn" data-key="ArrowLeft">←</button>
+            <button class="key-btn" data-key="ArrowRight">→</button>
+            <button class="key-btn" data-key="Enter">⏎</button>
+        </div>
+        <div class="keyboard-row">
+            <button class="key-btn special" data-key="|">|</button>
+            <button class="key-btn special" data-key="&">&</button>
+            <button class="key-btn special" data-key=";">;</button>
+            <button class="key-btn special" data-key='"'>"</button>
+            <button class="key-btn special" data-key="'">'</button>
+            <button class="key-btn special" data-key="`">`</button>
         </div>
     </div>
 
@@ -69,11 +78,15 @@
     <div class="modal" id="sessionsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-list"></i> Active Sessions</h3>
-                <button class="modal-close">&times;</button>
+                <h3>Active Sessions</h3>
+                <button class="modal-close" onclick="closeModal('sessionsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
-                <div id="sessionsList"></div>
+                <div class="sessions-list" id="sessionsList">
+                    <!-- Sessions will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
@@ -82,49 +95,41 @@
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-cog"></i> Settings</h3>
-                <button class="modal-close">&times;</button>
+                <h3>Settings</h3>
+                <button class="modal-close" onclick="closeModal('settingsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="setting-item">
-                    <label for="fontSize">Font Size:</label>
+                    <label>Font Size</label>
                     <select id="fontSize">
-                        <option value="10">10px</option>
                         <option value="12">12px</option>
                         <option value="14" selected>14px</option>
                         <option value="16">16px</option>
                         <option value="18">18px</option>
-                        <option value="20">20px</option>
                     </select>
                 </div>
                 <div class="setting-item">
-                    <label for="theme">Theme:</label>
+                    <label>Theme</label>
                     <select id="theme">
                         <option value="dark" selected>Dark</option>
                         <option value="light">Light</option>
-                        <option value="matrix">Matrix</option>
+                        <option value="green">Matrix Green</option>
                     </select>
                 </div>
                 <div class="setting-item">
-                    <label>
-                        <input type="checkbox" id="showKeyboard" checked />
-                        Show Virtual Keyboard
-                    </label>
-                </div>
-                <div class="setting-item">
-                    <label>
-                        <input type="checkbox" id="enableSound" />
-                        Enable Sound Effects
-                    </label>
+                    <label>Show Virtual Keyboard</label>
+                    <input type="checkbox" id="showKeyboard" checked>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="connection-status" id="connectionStatus">
-        <span class="status-connecting">Connecting...</span>
-    </div>
-
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
