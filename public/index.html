@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="header-left">
             <h1><i class="fas fa-terminal"></i> Terminal</h1>
         </div>
         <div class="header-right">
+            <div class="connection-status" id="connectionStatus"></div>
             <button class="btn-icon" id="newSessionBtn">
                 <i class="fas fa-plus"></i>
             </button>
@@ -27,12 +27,9 @@
         </div>
     </div>
 
-    <!-- Session Tabs -->
     <div class="session-tabs" id="sessionTabs">
-        <!-- Tabs will be dynamically added here -->
-    </div>
+        </div>
 
-    <!-- Terminal Container -->
     <div class="terminal-container">
         <div class="terminal-wrapper" id="terminalWrapper">
             <div class="no-session">
@@ -48,7 +45,6 @@
         </div>
     </div>
 
-    <!-- Mobile Keyboard -->
     <div class="mobile-keyboard">
         <div class="keyboard-row">
             <button class="key-btn" data-key="Tab">Tab</button>
@@ -74,7 +70,6 @@
         </div>
     </div>
 
-    <!-- Sessions Modal -->
     <div class="modal" id="sessionsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -85,13 +80,11 @@
             </div>
             <div class="modal-body">
                 <div class="sessions-list" id="sessionsList">
-                    <!-- Sessions will be loaded here -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- Settings Modal -->
     <div class="modal" id="settingsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -126,7 +119,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
