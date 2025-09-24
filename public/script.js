@@ -272,19 +272,29 @@ class TerminalApp {
         
         const terminal = session.terminal;
         
-        // Handle toggles for Ctrl and Alt
+        // Handle Ctrl and Alt toggles
         if (key === 'Ctrl') {
             this.isCtrlToggled = !this.isCtrlToggled;
             document.getElementById('ctrlBtn').classList.toggle('toggled', this.isCtrlToggled);
+            // Agar Alt toggled hai, to use off kar do
+            if (this.isAltToggled) {
+                this.isAltToggled = false;
+                document.getElementById('altBtn').classList.remove('toggled');
+            }
             return;
         }
 
         if (key === 'Alt') {
             this.isAltToggled = !this.isAltToggled;
             document.getElementById('altBtn').classList.toggle('toggled', this.isAltToggled);
+            // Agar Ctrl toggled hai, to use off kar do
+            if (this.isCtrlToggled) {
+                this.isCtrlToggled = false;
+                document.getElementById('ctrlBtn').classList.remove('toggled');
+            }
             return;
         }
-
+        
         // Handle Paste button
         if (key === 'Paste') {
             navigator.clipboard.readText().then(text => {
@@ -301,70 +311,80 @@ class TerminalApp {
 
         let inputData = '';
         
-        // Combine Toggled keys with normal keys
-        if (this.isCtrlToggled) {
-            switch(key) {
-                case 'C': inputData = '\x03'; break; // Ctrl+C
-                case 'Z': inputData = '\x1a'; break; // Ctrl+Z
-                case 'D': inputData = '\x04'; break; // Ctrl+D
-                case 'H': inputData = '\x08'; break; // Ctrl+H (Backspace)
-                // Add more Ctrl combinations as needed
-            }
-            this.isCtrlToggled = false;
-            document.getElementById('ctrlBtn').classList.remove('toggled');
-        } else if (this.isAltToggled) {
-            // Alt combinations are more complex, for now we send Alt + char
-            // For example, Alt+B for backward-word
-            inputData = '\x1b' + key; // Escape + character
-            this.isAltToggled = false;
-            document.getElementById('altBtn').classList.remove('toggled');
+        // Handle special combination keys first
+        if (key === 'Ctrl+C') {
+            inputData = '\x03'; // Ctrl+C
+        } else if (key === 'Ctrl+Z') {
+            inputData = '\x1a'; // Ctrl+Z
+        } else if (key === 'Ctrl+D') {
+            inputData = '\x04'; // Ctrl+D
         } else {
-            // Normal keys
-            switch (key) {
-                case 'Tab':
-                    inputData = '\t';
-                    break;
-                case 'Enter':
-                    inputData = '\r';
-                    break;
-                case 'Escape':
-                    inputData = '\x1b';
-                    break;
-                case 'Ctrl+C':
-                    inputData = '\x03';
-                    break;
-                case 'Ctrl+Z':
-                    inputData = '\x1a';
-                    break;
-                case 'Ctrl+D':
-                    inputData = '\x04';
-                    break;
-                case 'ArrowUp':
-                    inputData = '\x1b[A';
-                    break;
-                case 'ArrowDown':
-                    inputData = '\x1b[B';
-                    break;
-                case 'ArrowRight':
-                    inputData = '\x1b[C';
-                    break;
-                case 'ArrowLeft':
-                    inputData = '\x1b[D';
-                    break;
-                case 'Home':
-                    inputData = '\x1b[H'; // ANSI escape code for Home
-                    break;
-                default:
-                    inputData = key;
-                    break;
+            // Handle key with modifier if toggled
+            if (this.isCtrlToggled) {
+                // Convert a single character to its Ctrl+ equivalent
+                if (key.length === 1) {
+                    const charCode = key.charCodeAt(0);
+                    if (charCode >= 97 && charCode <= 122) { // a-z
+                        inputData = String.fromCharCode(charCode - 96);
+                    } else if (charCode >= 65 && charCode <= 90) { // A-Z
+                        inputData = String.fromCharCode(charCode - 64);
+                    } else if (key === '[') {
+                        inputData = '\x1B'; // Ctrl+[ is Escape
+                    } else {
+                        // For other special characters with Ctrl
+                        inputData = key;
+                    }
+                }
+            } else if (this.isAltToggled) {
+                // Alt combinations are more complex, for now send Alt + char
+                inputData = '\x1b' + key; // Escape + character
+            } else {
+                // Normal keys
+                switch (key) {
+                    case 'Tab':
+                        inputData = '\t';
+                        break;
+                    case 'Enter':
+                        inputData = '\r';
+                        break;
+                    case 'Escape':
+                        inputData = '\x1b';
+                        break;
+                    case 'ArrowUp':
+                        inputData = '\x1b[A';
+                        break;
+                    case 'ArrowDown':
+                        inputData = '\x1b[B';
+                        break;
+                    case 'ArrowRight':
+                        inputData = '\x1b[C';
+                        break;
+                    case 'ArrowLeft':
+                        inputData = '\x1b[D';
+                        break;
+                    case 'Home':
+                        inputData = '\x1b[H'; // ANSI escape code for Home
+                        break;
+                    default:
+                        inputData = key;
+                        break;
+                }
             }
         }
-        
+
         if (inputData) {
             this.socket.emit('terminal-input', { 
                 sessionId: this.activeSessionId, 
                 data: inputData 
             });
+        }
+        
+        // Reset toggled state for next keypress
+        if (this.isCtrlToggled || this.isAltToggled) {
+            this.isCtrlToggled = false;
+            this.isAltToggled = false;
+            document.getElementById('ctrlBtn').classList.remove('toggled');
+            document.getElementById('altBtn').classList.remove('toggled');
         }
     }
 
