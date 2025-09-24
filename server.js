@@ -133,8 +133,6 @@ io.on('connection', (socket) => {
       fs.writeFileSync(path.join(sessionsDirectory, `${sessionId}.json`), sessionLogs.get(sessionId));
     });
 
-    // ptyProcess.onExit ko hata diya gaya hai, taaki manual close par hi file delete ho.
-    
     socket.emit('session-created', { sessionId });
     console.log(`Created session: ${sessionId}`);
   });
@@ -175,7 +173,6 @@ io.on('connection', (socket) => {
         createdAt: session.createdAt
       }));
 
-    // Add logs to the sessions list
     const sessionsWithLogs = Array.from(sessionLogs.keys()).map(sessionId => {
       const activeSession = sessions.get(sessionId);
       return {
@@ -189,9 +186,21 @@ io.on('connection', (socket) => {
   });
   
   socket.on('join-session', ({ sessionId }) => {
-    let session = sessions.get(sessionId);
-    
-    if (!session) {
+    const session = sessions.get(sessionId);
+    if (session) {
+      session.socketId = socket.id;
+      const log = sessionLogs.get(sessionId) || '';
+      socket.emit('session-joined', { sessionId, log });
+      
+      // Re-route ptyProcess output to the new socket
+      session.ptyProcess.removeAllListeners('data');
+      session.ptyProcess.on('data', (data) => {
+        socket.emit('terminal-output', { sessionId, data });
+        sessionLogs.set(sessionId, sessionLogs.get(sessionId) + data);
+        fs.writeFileSync(path.join(sessionsDirectory, `${sessionId}.json`), sessionLogs.get(sessionId));
+      });
+      
+    } else {
       const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
       const ptyProcess = pty.spawn(shell, [], {
         name: 'xterm-color',
@@ -201,32 +210,38 @@ io.on('connection', (socket) => {
         env: process.env
       });
 
-      session = {
+      sessions.set(sessionId, {
         ptyProcess,
         socketId: socket.id,
         createdAt: new Date()
-      };
-      sessions.set(sessionId, session);
+      });
       
+      const log = sessionLogs.get(sessionId) || '';
+      socket.emit('session-joined', { sessionId, log });
+
       ptyProcess.onData((data) => {
         socket.emit('terminal-output', { sessionId, data });
         sessionLogs.set(sessionId, sessionLogs.get(sessionId) + data);
         fs.writeFileSync(path.join(sessionsDirectory, `${sessionId}.json`), sessionLogs.get(sessionId));
       });
-    } else {
-        session.socketId = socket.id;
+    
+      ptyProcess.onExit(() => {
+        sessions.delete(sessionId);
+        const logFilePath = path.join(sessionsDirectory, `${sessionId}.json`);
+        if (fs.existsSync(logFilePath)) {
+          fs.unlinkSync(logFilePath);
+        }
+        sessionLogs.delete(sessionId);
+        socket.emit('session-closed', { sessionId });
+      });
     }
-
-    const log = sessionLogs.get(sessionId) || '';
-    socket.emit('session-joined', { sessionId, log });
   });
 
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     for (const [sessionId, session] of sessions.entries()) {
       if (session.socketId === socket.id) {
-        sessions.delete(sessionId);
-        // ptyProcess ko kill nahi kiya jayega, taaki session persist kare
+        session.socketId = null; // Mark as disconnected but don't kill the process
       }
     }
   });
